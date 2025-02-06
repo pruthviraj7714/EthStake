@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
 interface ItokenAddress {
@@ -39,9 +39,7 @@ contract StakingContract {
             lastUpdatedTime[msg.sender] = block.timestamp;
         } else {
             unclaimedRewards[msg.sender] +=
-                (block.timestamp - lastUpdatedTime[msg.sender]) *
-                balances[msg.sender] *
-                REWARD_PER_SEC_PER_ETH;
+                calculateReward(msg.sender);
             lastUpdatedTime[msg.sender] = block.timestamp;
         }
 
@@ -54,9 +52,7 @@ contract StakingContract {
         require(_amount <= balances[msg.sender], "Insufficient balance to unstake");
 
         unclaimedRewards[msg.sender] +=
-            (block.timestamp - lastUpdatedTime[msg.sender]) *
-            balances[msg.sender] *
-            REWARD_PER_SEC_PER_ETH;
+            calculateReward(msg.sender);
         lastUpdatedTime[msg.sender] = block.timestamp;
         balances[msg.sender] -= _amount;
 
@@ -68,10 +64,7 @@ contract StakingContract {
         require(_address != address(0), "Invalid address");
 
         uint currentReward = unclaimedRewards[_address];
-        uint updateTime = lastUpdatedTime[_address];
-        uint newReward = (block.timestamp - updateTime) *
-            balances[_address] *
-            REWARD_PER_SEC_PER_ETH;
+        uint newReward = calculateReward(_address);
 
         return currentReward + newReward;
     }
@@ -80,10 +73,7 @@ contract StakingContract {
         uint currentReward = unclaimedRewards[msg.sender];
         require(currentReward > 0 || balances[msg.sender] > 0, "No rewards available to claim");
 
-        uint updateTime = lastUpdatedTime[msg.sender];
-        uint newReward = (block.timestamp - updateTime) *
-            balances[msg.sender] *
-            REWARD_PER_SEC_PER_ETH;
+        uint newReward = calculateReward(msg.sender);
         unclaimedRewards[msg.sender] += newReward;
 
         uint totalReward = currentReward + newReward;
@@ -96,6 +86,12 @@ contract StakingContract {
         lastUpdatedTime[msg.sender] = block.timestamp;
 
         emit RewardsClaimed(msg.sender, totalReward);
+    }
+
+    function calculateReward(address _address) public view returns(uint) {
+        return (block.timestamp - lastUpdatedTime[_address]) *
+                balances[_address] *
+                REWARD_PER_SEC_PER_ETH;
     }
 
     function updateTokenAddress(address _tokenAddress) public onlyOwner {

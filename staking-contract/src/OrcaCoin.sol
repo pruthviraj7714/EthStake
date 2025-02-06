@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -9,7 +9,7 @@ contract OrcaCoin is ERC20 {
         stakingContract = _stakingContract;
     }
 
-    function mint(address _account, uint _amount) public {
+    function mint(address _account, uint _amount) external {
         require(msg.sender == stakingContract);
         _mint(_account,_amount);
     }
