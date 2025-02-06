@@ -52,10 +52,9 @@ export default function Landing() {
                 </p>
               </div>
               <div className="">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-md rounded-xl text-white">
+                <Link href={'/connect-wallet'} className="bg-blue-600 px-6 py-2 hover:bg-blue-700 text-md rounded-xl text-white mt-2">
                   Start Staking
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                </Link>
               </div>
             </div>
           </div>
