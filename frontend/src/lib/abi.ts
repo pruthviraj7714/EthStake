@@ -1,4 +1,4 @@
-const ORCA_TOKEN_ABI = [
+export const ORCA_TOKEN_ABI = [
   {
     type: "constructor",
     inputs: [
@@ -351,7 +351,7 @@ const ORCA_TOKEN_ABI = [
   },
 ];
 
-const STAKING_CONTRACT_ABI = [
+export const STAKING_CONTRACT_ABI = [
   {
     type: "constructor",
     inputs: [
