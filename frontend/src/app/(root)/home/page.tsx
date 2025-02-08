@@ -17,11 +17,8 @@ import { Address } from "viem";
 import { STAKING_CONTRACT_ABI } from "@/lib/abi";
 import { toast } from "sonner";
 import { readContract } from "wagmi/actions";
+import { STAKING_CONTRACT_ADDRESS, TOKEN_CONTRACT_ADDRESS } from "@/lib/constants";
 
-export const stakingContractAddress =
-  process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS;
-export const tokenContractAddress =
-  process.env.NEXT_PUBLIC_ORCACOIN_CONTRACT_ADDRESS;
 
 export default function Home() {
   const [stakedAmount, setStakedAmount] = useState<any>(0);
@@ -37,17 +34,17 @@ export default function Home() {
     try {
       // await writeContractAsync({
       //   abi: ORCA_TOKEN_ABI,
-      //   address: tokenContractAddress as `0x${string}`,
+      //   address: TOKEN_CONTRACT_ADDRESS as `0x${string}`,
       //   functionName: "updateStakingContract",
-      //   args: [stakingContractAddress],
+      //   args: [STAKING_CONTRACT_ADDRESS],
       //   account: address,
       // });
 
       await writeContractAsync({
         abi: STAKING_CONTRACT_ABI,
-        address: stakingContractAddress as `0x${string}`,
+        address: STAKING_CONTRACT_ADDRESS as `0x${string}`,
         functionName: "updateTokenAddress",
-        args: [tokenContractAddress],
+        args: [TOKEN_CONTRACT_ADDRESS],
         account: address,
       });
     } catch (error: any) {
@@ -57,34 +54,45 @@ export default function Home() {
 
   const stake = async (amount: number) => {
     setStakingLoading(true);
-    await writeContractAsync({
-      abi: STAKING_CONTRACT_ABI,
-      address: stakingContractAddress as `0x${Address}`,
-      functionName: "stake",
-      value: BigInt(amount * 10 ** 18),
-    });
-    setStakedAmount(stakedAmount + BigInt(amount * 10 ** 18));
-    setStakingLoading(false);
+    try {
+      await writeContractAsync({
+        abi: STAKING_CONTRACT_ABI,
+        address: STAKING_CONTRACT_ADDRESS as `0x${Address}`,
+        functionName: "stake",
+        value: BigInt(amount * 10 ** 18),
+      });
+      setStakedAmount(stakedAmount + BigInt(amount * 10 ** 18));
+    } catch (error : any) {
+      toast.error(error.message);
+    } finally {
+      setStakingLoading(false);
+    }
   
   };
 
   const unstake = async (amount: any) => {
     setUnstakingLoading(true);
-    await writeContractAsync({
-      abi: STAKING_CONTRACT_ABI,
-      address: stakingContractAddress as `0x${Address}`,
-      functionName: "unstake",
-      account: address,
-      args: [amount * 10 ** 18],
-    });
-    setStakedAmount(stakedAmount > BigInt(amount * 10 ** 18) ? stakedAmount - BigInt(amount * 10 ** 18) : BigInt(0));
-    setUnstakingLoading(false);
+    try {
+      await writeContractAsync({
+        abi: STAKING_CONTRACT_ABI,
+        address: STAKING_CONTRACT_ADDRESS as `0x${Address}`,
+        functionName: "unstake",
+        account: address,
+        args: [amount * 10 ** 18],
+      });
+      setStakedAmount(stakedAmount > BigInt(amount * 10 ** 18) ? stakedAmount - BigInt(amount * 10 ** 18) : BigInt(0));
+      
+    } catch (error : any) {
+      toast.error(error.message);
+    } finally {
+      setUnstakingLoading(false);
+    }
   };
 
   const claimRewards = async () => {
     await writeContractAsync({
       abi: STAKING_CONTRACT_ABI,
-      address: stakingContractAddress as `0x${Address}`,
+      address: STAKING_CONTRACT_ADDRESS as `0x${Address}`,
       functionName: "claimRewards",
       account: address as `0x${Address}`,
     });
@@ -94,7 +102,7 @@ export default function Home() {
     try {
       const data = await readContract(config, {
         abi: STAKING_CONTRACT_ABI,
-        address: stakingContractAddress as `0x${string}`,
+        address: STAKING_CONTRACT_ADDRESS as `0x${string}`,
         functionName: "getRewards",
         args: [address as Address],
       });
@@ -109,7 +117,7 @@ export default function Home() {
     try {
       const data = await readContract(config, {
         abi: STAKING_CONTRACT_ABI,
-        address: stakingContractAddress as `0x${Address}`,
+        address: STAKING_CONTRACT_ADDRESS as `0x${Address}`,
         functionName: "balanceOf",
         args: [address],
         account: address,
