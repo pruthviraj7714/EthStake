@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import { OrcaCoin } from "../src/OrcaCoin.sol";
+import {OrcaCoin} from "../src/OrcaCoin.sol";
 
 contract OrcaCoinTest is Test {
     OrcaCoin public orcacoin;
@@ -11,13 +11,14 @@ contract OrcaCoinTest is Test {
         orcacoin = new OrcaCoin(address(this));
     }
 
-    function testInitialSupply() view public {
+    function testInitialSupply() public view {
         assert(orcacoin.totalSupply() == 0);
     }
 
-    function testFailMint() public {
+    function test_RevertWhen_MintFromOthers() public {
         vm.startPrank(0xbf8Fa76704090a2139E53E29d9e2CDB8aA549986);
-        orcacoin.mint(0xbf8Fa76704090a2139E53E29d9e2CDB8aA549986, 10);
+        vm.expectRevert("Unauthorized");
+        orcacoin.mint(0xbf8Fa76704090a2139E53E29d9e2CDB8aA549986, 100);
     }
 
     function testMint() public {
@@ -31,6 +32,4 @@ contract OrcaCoinTest is Test {
         orcacoin.mint(0xbf8Fa76704090a2139E53E29d9e2CDB8aA549986, 100);
         assertEq(orcacoin.balanceOf(0xbf8Fa76704090a2139E53E29d9e2CDB8aA549986), 100);
     }
-
-
 }

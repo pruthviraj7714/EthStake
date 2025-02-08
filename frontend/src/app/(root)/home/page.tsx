@@ -21,7 +21,7 @@ import { readContract } from "wagmi/actions";
 export const stakingContractAddress =
   process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS;
 export const tokenContractAddress =
-  process.env.NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS;
+  process.env.NEXT_PUBLIC_ORCACOIN_CONTRACT_ADDRESS;
 
 export default function Home() {
   const [stakedAmount, setStakedAmount] = useState<any>(0);
@@ -31,27 +31,27 @@ export default function Home() {
   });
   const { address } = useAccount();
 
-  // const updateTokenAddressInStakingContract = async () => {
-  //   try {
-  //     // await writeContractAsync({
-  //     //   abi: ORCA_TOKEN_ABI,
-  //     //   address: tokenContractAddress as `0x${string}`,
-  //     //   functionName: "updateStakingContract",
-  //     //   args: [stakingContractAddress],
-  //     //   account: address,
-  //     // });
+  const updateAddress = async () => {
+    try {
+      // await writeContractAsync({
+      //   abi: ORCA_TOKEN_ABI,
+      //   address: tokenContractAddress as `0x${string}`,
+      //   functionName: "updateStakingContract",
+      //   args: [stakingContractAddress],
+      //   account: address,
+      // });
 
-  //     await writeContractAsync({
-  //       abi: STAKING_CONTRACT_ABI,
-  //       address: stakingContractAddress as `0x${string}`,
-  //       functionName: "updateTokenAddress",
-  //       args: [tokenContractAddress],
-  //       account: address,
-  //     });
-  //   } catch (error : any) {
-  //     toast.error(error.message);
-  //   }
-  // };
+      await writeContractAsync({
+        abi: STAKING_CONTRACT_ABI,
+        address: stakingContractAddress as `0x${string}`,
+        functionName: "updateTokenAddress",
+        args: [tokenContractAddress],
+        account: address,
+      });
+    } catch (error : any) {
+      toast.error(error.message);
+    }
+  };
 
   const stake = async (amount: number) => {
     await writeContractAsync({
@@ -67,7 +67,7 @@ export default function Home() {
     await writeContractAsync({
       abi: STAKING_CONTRACT_ABI,
       address: stakingContractAddress as `0x${Address}`,
-      functionName: "unStake",
+      functionName: "unstake",
       account: address,
       args: [amount * 10 ** 18],
     });
@@ -221,6 +221,12 @@ export default function Home() {
                 </form>
               </CardContent>
             </Card>
+          </div>
+
+          <div>
+            <Button onClick={updateAddress}>
+              Update Address
+            </Button>
           </div>
 
           <Card>
