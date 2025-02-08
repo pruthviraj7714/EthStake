@@ -29,6 +29,8 @@ export default function Home() {
   const { writeContractAsync } = useWriteContract({
     config: config,
   });
+  const [stakingLoading, setStakingLoading] = useState(false);
+  const [unstakingLoading, setUnstakingLoading] = useState(false);
   const { address } = useAccount();
 
   const updateAddress = async () => {
@@ -48,22 +50,26 @@ export default function Home() {
         args: [tokenContractAddress],
         account: address,
       });
-    } catch (error : any) {
+    } catch (error: any) {
       toast.error(error.message);
     }
   };
 
   const stake = async (amount: number) => {
+    setStakingLoading(true);
     await writeContractAsync({
       abi: STAKING_CONTRACT_ABI,
       address: stakingContractAddress as `0x${Address}`,
       functionName: "stake",
       value: BigInt(amount * 10 ** 18),
     });
-    setStakedAmount(stakedAmount + amount);
+    setStakedAmount(stakedAmount + BigInt(amount * 10 ** 18));
+    setStakingLoading(false);
+  
   };
 
   const unstake = async (amount: any) => {
+    setUnstakingLoading(true);
     await writeContractAsync({
       abi: STAKING_CONTRACT_ABI,
       address: stakingContractAddress as `0x${Address}`,
@@ -71,7 +77,8 @@ export default function Home() {
       account: address,
       args: [amount * 10 ** 18],
     });
-    setStakedAmount(Math.max(0, stakedAmount - amount));
+    setStakedAmount(stakedAmount > BigInt(amount * 10 ** 18) ? stakedAmount - BigInt(amount * 10 ** 18) : BigInt(0));
+    setUnstakingLoading(false);
   };
 
   const claimRewards = async () => {
@@ -185,7 +192,7 @@ export default function Home() {
                       step="0.0001"
                       required
                     />
-                    <Button variant={"custom"} type="submit">
+                    <Button disabled={stakingLoading} variant={"custom"} type="submit">
                       <ArrowUpCircle className="mr-2 h-4 w-4" />
                       Stake
                     </Button>
@@ -213,7 +220,7 @@ export default function Home() {
                       name="unstakeAmount"
                       required
                     />
-                    <Button variant={"custom"} type="submit">
+                    <Button disabled={unstakingLoading} variant={"custom"} type="submit">
                       <ArrowDownCircle className="mr-2 h-4 w-4" />
                       Unstake
                     </Button>
@@ -223,11 +230,11 @@ export default function Home() {
             </Card>
           </div>
 
-          <div>
+          {/* <div>
             <Button onClick={updateAddress}>
               Update Address
             </Button>
-          </div>
+          </div> */}
 
           <Card>
             <CardHeader>
