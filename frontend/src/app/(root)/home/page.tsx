@@ -19,7 +19,6 @@ import { toast } from "sonner";
 import { readContract } from "wagmi/actions";
 import { STAKING_CONTRACT_ADDRESS, TOKEN_CONTRACT_ADDRESS } from "@/lib/constants";
 
-
 export default function Home() {
   const [stakedAmount, setStakedAmount] = useState<any>(0);
   const [rewards, setRewards] = useState<any>(0);
@@ -129,8 +128,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    balanceOfAddress();
-    getRewards();
+    if(address) {
+      balanceOfAddress();
+      getRewards();
+    }
   }, [address]);
 
   return (
